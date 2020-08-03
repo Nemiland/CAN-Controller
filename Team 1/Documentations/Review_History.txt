@@ -1,0 +1,272 @@
+project_name: CAN_we_do_it_Can_Controller
+ 
+------------------------- CAN1-50 Added Configuration Register Requirements by Antonio------------------------- 
+Author: PricelessAntonio
+Reviewers:
+ID: 449677381
+merge_commit_sha: 43c852d70eeca9cf296ce0059b00f341dfcc8361
+Created: 2020-07-15 19:09:18
+Closed: None
+Description: 
+ 
+Review Comments: 
+Conversational Comments: 
+PricelessAntonio 2020-07-15 19:10:58
+Previous requirements review
+[config_reg_Requirements.Checklist v1.docx](https:
+//github.com/hruy1/CAN_we_do_it_Can_Controller/fil
+es/4927449/config_reg_Requirements.Checklist.v1.do
+cx)  [config_reg_requirements_comments v1.docx](ht
+tps://github.com/hruy1/CAN_we_do_it_Can_Controller
+/files/4927450/config_reg_requirements_comments.v1
+.docx)
+ 
+ 
+Changed_Files: 
+file1: Documentations/config_reg_requirements.docx
+------------------------- CAN1-50 Added Configuration Register Requirements by Antonio------------------------- 
+
+
+
+------------------------- CAN1-70 Created Bit Stream Processor Test Cases------------------------- 
+Author: hruy1
+Reviewers: waseem55
+ID: 449594034
+merge_commit_sha: 8c128ef4770cf20817181e05e16fc4b9e3e767e9
+Created: 2020-07-15 16:27:27
+Closed: 2020-07-15 20:00:32
+Description: 
+ 
+Review Comments: 
+waseem55 2020-07-15 18:09:08
+Body: [bit_stream_processor_testcases Checklist.docx](ht
+tps://github.com/hruy1/CAN_we_do_it_Can_Controller
+/files/4927133/bit_stream_processor_testcases.Chec
+klist.docx)  [Bit_Stream_Processor_Test_Cases.xlsx
+](https://github.com/hruy1/CAN_we_do_it_Can_Contro
+ller/files/4927135/Bit_Stream_Processor_Test_Cases
+.xlsx)
+ 
+waseem55 2020-07-15 19:59:37
+Body: 
+ 
+Conversational Comments: 
+waseem55 2020-07-15 20:00:19
+[bit_stream_processor_testcases Checklist.docx](ht
+tps://github.com/hruy1/CAN_we_do_it_Can_Controller
+/files/4927623/bit_stream_processor_testcases.Chec
+klist.docx)
+ 
+ 
+Changed_Files: 
+file1: Documentations/Bit_Stream_Processor_Test_Cases.xlsx
+------------------------- CAN1-70 Created Bit Stream Processor Test Cases------------------------- 
+
+
+
+------------------------- Feature tx priority logic code------------------------- 
+Author: waseem55
+Reviewers: waseem55 PricelessAntonio
+ID: 449591288
+merge_commit_sha: 12d2ccd3fa7fe15983349f553a7f95f5c18565b7
+Created: 2020-07-15 16:22:37
+Closed: 2020-07-15 17:49:05
+Description: 
+ 
+Review Comments: 
+PricelessAntonio 2020-07-15 17:06:29
+Body: Address the comments that were made to the code.
+PricelessAntonio None sv_files/src_files/CAN_TX_Priority_Logic.sv
+If you are trying to define constant values, I
+think you should move them out of the #() and
+right below port definitions.  The reason is
+because users would be able to change the
+parameters outside the module if they so choose.
+Also I would recommend looking into localparam
+instead of parameter.
+PricelessAntonio 52 sv_files/src_files/CAN_TX_Priority_Logic.sv
+This should also have a reset condition.
+PricelessAntonio None sv_files/src_files/CAN_TX_Priority_Logic.sv
+This should also have reset condition
+ 
+waseem55 2020-07-15 17:29:36
+Body: 
+waseem55 None sv_files/src_files/CAN_TX_Priority_Logic.sv
+Changed the parameters to local parameters.
+ 
+waseem55 2020-07-15 17:45:14
+Body: 
+waseem55 52 sv_files/src_files/CAN_TX_Priority_Logic.sv
+Agreed to not include the reset here
+ 
+waseem55 2020-07-15 17:45:30
+Body: 
+waseem55 None sv_files/src_files/CAN_TX_Priority_Logic.sv
+Added the reset
+ 
+PricelessAntonio 2020-07-15 17:48:34
+Body: 
+ 
+Conversational Comments: 
+PricelessAntonio 2020-07-15 17:12:02
+[Tx Priority Logic Validation Checklist v1.docx](h
+ttps://github.com/hruy1/CAN_we_do_it_Can_Controlle
+r/files/4926770/Tx.Priority.Logic.Validation.Check
+list.v1.docx)
+ 
+PricelessAntonio 2020-07-15 17:48:23
+[Tx Priority Logic Validation Checklist v2.docx](h
+ttps://github.com/hruy1/CAN_we_do_it_Can_Controlle
+r/files/4927011/Tx.Priority.Logic.Validation.Check
+list.v2.docx)
+ 
+ 
+Changed_Files: 
+file1: sv_files/src_files/CAN_TX_Priority_Logic.sv
+------------------------- Feature tx priority logic code------------------------- 
+
+
+
+------------------------- CAN1-52 # fixed typos in requirements by Waseem------------------------- 
+Author: waseem55
+Reviewers: hruy1
+ID: 449005005
+merge_commit_sha: ec3d29f1cca36575835084cc9aaa618aefe83c67
+Created: 2020-07-14 17:07:51
+Closed: 2020-07-14 17:15:16
+Description: Deleted requirement number BSP_18, and rephrased requirement number BSP_9
+ 
+Review Comments: 
+hruy1 2020-07-14 17:14:50
+Body: 
+ 
+Conversational Comments: 
+ 
+Changed_Files: 
+file1: Documentations/Requirements/Bit_Stream_Processor.docx
+------------------------- CAN1-52 # fixed typos in requirements by Waseem------------------------- 
+
+
+
+------------------------- CAN1-50 Added Configuration Register Requirements by Antonio------------------------- 
+Author: PricelessAntonio
+Reviewers: hruy1
+ID: 447619015
+merge_commit_sha: b5b65dfb4f0e9766a8234824cc19a0d9d6cc630a
+Created: 2020-07-10 19:58:01
+Closed: 2020-07-15 19:01:24
+Description: 
+ 
+Review Comments: 
+hruy1 2020-07-13 18:23:03
+Body: [config_reg_Requirements Checklist.docx](https://g
+ithub.com/hruy1/CAN_we_do_it_Can_Controller/files/
+4914379/config_reg_Requirements.Checklist.docx)  [
+config_reg_requirements_comments.docx](https://git
+hub.com/hruy1/CAN_we_do_it_Can_Controller/files/49
+14380/config_reg_requirements_comments.docx)
+ 
+Conversational Comments: 
+ 
+Changed_Files: 
+file1: Documentations/config_reg_requirements.docx
+------------------------- CAN1-50 Added Configuration Register Requirements by Antonio------------------------- 
+
+
+
+------------------------- CAN1-48 Added Acceptance Filter Requirement------------------------- 
+Author: hruy1
+Reviewers: PricelessAntonio
+ID: 447097017
+merge_commit_sha: 6b206114c0b6a500f4e9e25232f1926621bc3ff1
+Created: 2020-07-09 21:13:58
+Closed: None
+Description: 
+ 
+Review Comments: 
+PricelessAntonio 2020-07-14 18:42:47
+Body: Address the comments in the uploaded document.
+ 
+Conversational Comments: 
+PricelessAntonio 2020-07-14 18:42:12
+Address the following comments within the uploaded
+doc.  [Acceptance Filter Requirement Comments v1.d
+ocx](https://github.com/hruy1/CAN_we_do_it_Can_Con
+troller/files/4920660/Acceptance.Filter.Requiremen
+t.Comments.v1.docx)  [Acceptance Filter
+Requirements Checklist v1.docx](https://github.com
+/hruy1/CAN_we_do_it_Can_Controller/files/4920661/A
+cceptance.Filter.Requirements.Checklist.v1.docx)
+ 
+ 
+Changed_Files: 
+file1: Documentations/Acceptance Filter Requirement.docx
+------------------------- CAN1-48 Added Acceptance Filter Requirement------------------------- 
+
+
+
+------------------------- CAN1-40 Fixed error on FIFO requirements by Antonio------------------------- 
+Author: PricelessAntonio
+Reviewers: waseem55
+ID: 447083470
+merge_commit_sha: 64ba9e249ad906fd0e4ad05fd9dce2c63738a55f
+Created: 2020-07-09 20:42:32
+Closed: 2020-07-09 20:55:12
+Description: - Duplication on FIFO_08 and FIFO_11 requirements
+ 
+Review Comments: 
+waseem55 2020-07-09 20:46:00
+Body: Fixed an issue missed when first approved to merge
+into develop: deleted a duplicate requirement
+ 
+Conversational Comments: 
+ 
+Changed_Files: 
+file1: Documentations/fifo_requirements.docx
+------------------------- CAN1-40 Fixed error on FIFO requirements by Antonio------------------------- 
+
+
+
+------------------------- CAN1-60 #create FIFO test cases by Waseem------------------------- 
+Author: waseem55
+Reviewers: PricelessAntonio
+ID: 447069205
+merge_commit_sha: a17fb21084b3bd6528ad741176de249c581f2ccf
+Created: 2020-07-09 20:10:29
+Closed: 2020-07-10 20:06:34
+Description: 
+ 
+Review Comments: 
+PricelessAntonio 2020-07-10 18:53:15
+Body: Address the comments made within the test case xl
+sheet I've uploaded
+ 
+PricelessAntonio 2020-07-10 20:06:21
+Body: 
+ 
+Conversational Comments: 
+PricelessAntonio 2020-07-10 18:52:35
+[FIFO_Test_Cases_Comments_v1.xlsx](https://github.
+com/hruy1/CAN_we_do_it_Can_Controller/files/490485
+5/FIFO_Test_Cases_Comments_v1.xlsx)
+[FIFO_Testcases Checklist_v1.docx](https://github.
+com/hruy1/CAN_we_do_it_Can_Controller/files/490485
+6/FIFO_Testcases.Checklist_v1.docx)
+ 
+PricelessAntonio 2020-07-10 20:06:04
+Congrats, you passed  [FIFO_Testcases Checklist_v2
+.docx](https://github.com/hruy1/CAN_we_do_it_Can_C
+ontroller/files/4905135/FIFO_Testcases.Checklist_v
+2.docx)
+ 
+ 
+Changed_Files: 
+file1: Documentations/Test Cases/FIFO_Test_Cases.xlsx
+------------------------- CAN1-60 #create FIFO test cases by Waseem------------------------- 
+
+
+
+------------------------- CAN1-40 Fixed error on FIFO requirements by Antonio------------------------- 
+Author: PricelessAntonio
+Reviewers:
+ID: 447044221
