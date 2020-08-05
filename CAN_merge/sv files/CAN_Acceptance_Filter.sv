@@ -9,7 +9,7 @@
   ---------------------------------------------------------------------------------*/
 
 
-module CAN_Acceptanbce_Filter
+module CAN_Acceptance_Filter
 #( parameter integer NUMBER_OF_ACCEPTANCE_FILTRES = 0)
   (
 // signals input from configuration register
