@@ -78,8 +78,11 @@ module CAN_fifo_testcases;
         $display("\tTest PASS: MEM_DEPTH exists. Current value = %d", DUT.MEM_DEPTH);
     else
         $error("\tTest FAIL: MEM_DEPTH does not exist or is improperly initialized.");
+	//No reset necessary
+	
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    //FIFO_TC_01
+    //FIFO_TC_01 - 'o_full', 'o_overflow', 'o_underflow' are set to 0 when 'i_reset' is set to 1
     i_reset = 1'b1;															//Reset the FIFO		
 	
 	//Testcase conditions are now set up, begin assert sequence
@@ -105,9 +108,9 @@ module CAN_fifo_testcases;
 	i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_02
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_02 - 'o_empty' is set to 1 when 'i_reset' is set to 1
     i_reset = 1'b1;															//Reset the FIFO
 	
 	//Testcase conditions are now set up, begin assert sequence
@@ -121,9 +124,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_03
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_03 - 'o_underflow' is pulsed for one clock cycle when a read attempt happens while the fifo is empty
     i_r_en = 1'b1;															//Initiate the read attempt
     wait(o_empty == 1'b1);													//Keep reading until and through the FIFO being empty
     @(posedge i_sys_clk);													//Wait until the very next clock cycle after FIFO became empty
@@ -147,9 +150,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_04
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_04 - 'o_full' is set to 1 when all bits of read and write pointers are equal except the most significant bit
     i_r_en = 1'b1;															//Initiate the read attempt
     wait(o_empty == 1'b1);													//Keep reading until and through the FIFO being empty
     i_r_en = 1'b0;															//Stop reading from empty queue		
@@ -170,9 +173,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_05
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_05 - 'o_overflow' is pulsed for one clock cycle when a write attempt happens while the fifo is full
     i_r_en = 1'b1;															//Initiate the read attempt
     wait(o_empty == 1'b1);													//Keep reading until the FIFO being empty
     i_r_en = 1'b0;															//Stop reading from empty queue		
@@ -200,9 +203,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_06
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_06 - 'o_empty' is set to 1 when read and write pointers are equal
     i_w_en = 1'b1;															//Initiate the write attempt
     wait(o_full == 1'b1);													//Keep writing until the FIFO being full
     i_r_en = 1'b1;															//Initiate the read attempt from the full queue
@@ -223,9 +226,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_07
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_07 - Write pointer gets incremented on rising edge of clock if 'i_w_en' is set to 1 and fifo is not full
     i_r_en = 1'b1;															//Initiate the read attempt
     wait(o_empty == 1'b1);													//Keep reading until the FIFO being empty
     i_r_en = 1'b0;															//Stop reading from empty queue		
@@ -249,9 +252,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_08
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_08 - 'o_fifo_w_data' is saved in the fifo cell where the write pointer is pointing to at rising edge of clock if 'i_w_en' is set to 1 and fifo is not full
     i_fifo_w_data = 128'd0;													//Zero out the write bus just in case	
     i_r_en = 1'b1;															//Initiate the read attempt
     wait(o_empty == 1'b1);													//Keep reading until the FIFO being empty
@@ -278,9 +281,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
-	
-	
-    //FIFO_TC_09
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //FIFO_TC_09 - Read pointer gets incremented on rising edge of clock if 'i_r_en' is set to 1 and fifo is not empty
     i_w_en = 1'b1;															//Initiate the write attempt
     wait(o_full == 1'b1);													//Keep writing until the FIFO being full
 	i_r_en = 1'b1;															//Initiate the read attempt from the full queue
@@ -304,9 +307,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	
-    //FIFO_TC_10
+    //FIFO_TC_10 - 'o_fifo_r_data' is set to the fifo cell content where the read pointer is pointing to
 	
 	//Firstly, clear out the FIFO fully
     i_fifo_w_data = 128'd0;													//Zero out the write bus just in case		
@@ -345,9 +348,9 @@ module CAN_fifo_testcases;
     i_reset = 1'b0;
     @(posedge i_sys_clk);
     
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	
-    //FIFO_TC_11
+    //FIFO_TC_11 - All fifo cells are set to zeros when 'i_reset' is set to 1
 	
 	//Firstly, clear out the FIFO fully
     i_fifo_w_data = 128'd0;													//Zero out the write bus just in case	
