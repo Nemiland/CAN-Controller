@@ -45,6 +45,9 @@ module CAN_Acceptance_Filter_testcases(
     logic i_can_clk;
     logic i_can_ready;
     logic [127:0] i_rx_message;
+    logic o_rx_w_en_num0;
+    logic [127:0] o_rx_fifo_w_data_num0;
+    logic o_acfbsy_num0; 
     
     //DUT Module Instantiation
     CAN_Acceptance_Filter #(.NUMBER_OF_ACCEPTANCE_FILTRES(4))
@@ -71,7 +74,31 @@ module CAN_Acceptance_Filter_testcases(
         .i_can_ready      (i_can_ready     ),          
         .i_rx_message     (i_rx_message    ) 
         );
-        
+     //Declaring an empty module for AF_TC_17 - AF_TC_19
+     CAN_Acceptance_Filter #(.NUMBER_OF_ACCEPTANCE_FILTRES(0))
+        DUT_empty (
+        .i_sys_clk        (i_sys_clk           ),       
+        .i_reset          (i_reset             ),       
+        .i_rx_full        (i_rx_full           ),       
+        .i_afmr1          (i_afmr1             ),
+        .i_afmr2          (i_afmr2             ),
+        .i_afmr3          (i_afmr3             ),
+        .i_afmr4          (i_afmr4             ),
+        .i_afir1          (i_afir1             ),
+        .i_afir2          (i_afir2             ),  
+        .i_afir3          (i_afir3             ),  
+        .i_afir4          (i_afir4             ),  
+        .i_uaf1           (i_uaf1              ),         
+        .i_uaf2           (i_uaf2              ),         
+        .i_uaf3           (i_uaf3              ),          
+        .i_uaf4           (i_uaf4              ),          
+        .o_rx_w_en        (o_rx_w_en_num0       ),          
+        .o_rx_fifo_w_data (o_rx_fifo_w_data_num0),  
+        .o_acfbsy         (o_acfbsy_num0        ),          
+        .i_can_clk        (i_can_clk            ),          
+        .i_can_ready      (i_can_ready          ),          
+        .i_rx_message     (i_rx_message         ) 
+        );   
     //Initial values for inputs
     initial begin
         i_sys_clk    = 1'b0;
@@ -391,9 +418,55 @@ module CAN_Acceptance_Filter_testcases(
         for(int i = 0; i < 20; i++)
             @(posedge i_sys_clk);
         
+        //AF_TC_16
+        wait(DUT.AFR_CU.current_state == idle);
+        i_uaf1 = 1'b1;
+        i_can_ready = 1'b1;
+        i_rx_message[127:96] = 32'hAAAAAAAA;
+        i_afmr1 = 32'hFFFFFFFF;
+        i_afir1 = 32'hAAAAAAAA;
+        wait(DUT.AFR_CU.current_state == pass);
+        @(posedge i_sys_clk);
+        wait(DUT.AFR_CU.current_state == idle);
+        i_can_ready = 1'b1;
+        i_rx_full = 1'b1;
+        i_rx_message[127:96] = 32'hABCDABCD;
+        @(posedge i_sys_clk);
+        $display("[AF_TC_16] 'o_rx_fifo_w_data[127:0]' shall retain its previous value, if internal signal 'currstate' is in 'idle' state.");
+        #1 assert (o_rx_fifo_w_data == 32'hAAAAAAAA) 
+            $display("/t Test PASS: o_rx_fifo_w_data = %b", o_rx_fifo_w_data);
+        else
+            $error("/t Test FAIL: o_rx_fifo_w_data = %b", o_rx_fifo_w_data);
+        i_uaf1 = 1'b0;
+        i_can_ready = 1'b0;
+        i_rx_full = 1'b0;
+        i_rx_message[127:96] = 32'd0;
+        i_afmr1 = 32'd0;
+        i_afir1 = 32'd0;
+        for(int i = 0; i < 20; i++)
+            @(posedge i_sys_clk);
         
+        //AF_TC_17
         
-        
+        //Test number 1: setting i_uaf bits to 0
+        wait(DUT.AFR_CU.current_state == idle);
+        i_uaf1 = 1'b0;
+        i_uaf2 = 1'b0;
+        i_uaf3 = 1'b0;
+        i_uaf4 = 1'b0;
+        i_can_ready = 1'b1;
+        i_rx_full = 1'b0;
+        @(posedge i_sys_clk);
+        $display("[AF_TC_17] If all exist 'i_uaf' bits or number of acceptance filters are set to 0, 'o_rx_w_en' shall be set to 1 for one clock cycle on the rising edge of 'i_sys_clk' when 'i_can_ready' is set to 1 and 'i_rx_full' is set to 0.");
+        #1 assert (o_rx_w_en == 1'b1) 
+            $display("/t Test PASS: o_rx_w_en = %b", o_rx_w_en);
+        else
+            $error("/t Test FAIL: o_rx_w_en = %b", o_rx_w_en);
+        i_uaf1 = 1'b0;
+        i_can_ready = 1'b0;
+        i_rx_message[127:96] = 32'd0;
+        for(int i = 0; i < 20; i++)
+            @(posedge i_sys_clk); 
         
         
         
