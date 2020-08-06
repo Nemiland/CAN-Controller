@@ -148,7 +148,7 @@ module can_bsp(
                 int_tstate_next = IFS; //BSP_SOVR_01
             end
             else if (int_tstate == BUSY) begin
-                if(int_txbit_history[7:0] == 8'hFF) begin
+                if({int_txbit_history[6:0], int_tx_send_bit} == 8'hFF) begin
                     int_tstate_next = IFS; //BSP_TFSM_02
                 end
                 else begin
@@ -156,10 +156,10 @@ module can_bsp(
                 end
             end
             else if(int_tstate == IFS) begin
-                if((int_txbit_history[2:0] == 3'b111) && (i_send_en == 1'b1)) begin
+                if(({int_txbit_history[1:0], int_tx_send_bit} == 3'b111) && (i_send_en == 1'b1)) begin
                     int_tstate_next = BUSY; //BSP_TFSM_03
                 end
-                else if ((int_txbit_history[3:0] == 4'b1110)) begin
+                else if (({int_rxbit_history[2:0],i_rx_bit} == 4'b1110)) begin
                     int_tstate_next = IDLE; //BSP_TFSM_04
                 end
                 else begin
@@ -167,7 +167,7 @@ module can_bsp(
                 end
             end
             else begin
-                if(int_txbit_history[7:0] == 8'hFF) begin
+                if({int_txbit_history[6:0], int_tx_send_bit} == 8'hFF) begin
                     int_tstate_next = IFS; //BSP_TFSM_05
                 end
                 else begin
@@ -183,7 +183,7 @@ module can_bsp(
         end
         else begin
             if(i_samp_tick == 1'b1) begin
-                int_txbit_history[7:0] = {int_txbit_history[6:0], int_tx_send_bit}; //BSP_FRTX_01
+                int_txbit_history[7:0] <= {int_txbit_history[6:0], int_tx_send_bit}; //BSP_FRTX_01
             end
         end
     end
@@ -200,7 +200,7 @@ module can_bsp(
                 int_rstate_next = IFS; //BSP_SOVR_02
             end
             else if (int_rstate == BUSY) begin
-                if(int_rxbit_history[7:0] == 8'hFF) begin
+                if({int_rxbit_history[6:0], i_rx_bit} == 8'hFF) begin
                     int_rstate_next = IFS; //BSP_RFSM_02
                 end
                 else begin
@@ -208,15 +208,18 @@ module can_bsp(
                 end
             end
             else if(int_rstate == IFS) begin
-                if((int_rxbit_history[2:0] == 3'b111) && (i_send_en == 1'b1)) begin
+                if(({int_rxbit_history[1:0], i_rx_bit} == 3'b111) && (i_send_en == 1'b1)) begin
                     int_rstate_next = BUSY; //BSP_RFSM_03
+                end
+                else if (({int_rxbit_history[2:0],i_rx_bit} == 4'b1110)) begin
+                    int_rstate_next = BUSY; 
                 end
                 else begin
                     int_rstate_next = IFS;
                 end
             end
             else begin
-                if(int_rxbit_history[7:0] == 8'hFF) begin
+                if({int_rxbit_history[6:0], i_rx_bit} == 8'hFF) begin
                     int_rstate_next = IFS; //BSP_RFSM_04
                 end
                 else begin
@@ -232,7 +235,7 @@ module can_bsp(
         end
         else begin
             if(i_samp_tick == 1'b1) begin
-                int_rxbit_history[7:0] = {int_rxbit_history[6:0], i_rx_bit}; //BSP_FRRX_01
+                int_rxbit_history[7:0] <= {int_rxbit_history[6:0], i_rx_bit}; //BSP_FRRX_01
             end
         end
     end 
@@ -244,7 +247,8 @@ module can_bsp(
             int_mstate = MSLEEP; //BSP_RST_23
         end
         else begin
-            int_mstate <= int_mstate_next; //BSP_MFSM_01
+            if(i_samp_tick == 1'b1)
+                int_mstate <= int_mstate_next; //BSP_MFSM_01
         end
     end
     
@@ -254,7 +258,8 @@ module can_bsp(
             int_tstate = IDLE;  
         end
         else begin
-            int_tstate <= int_tstate_next; //BSP_TFSM_01
+            if(i_samp_tick == 1'b1)
+                int_tstate <= int_tstate_next; //BSP_TFSM_01
         end
     end
     
@@ -264,7 +269,8 @@ module can_bsp(
             int_rstate = IDLE; 
         end
         else begin
-            int_rstate <= int_rstate_next; //BSP_RFSM_01
+            if(i_samp_tick == 1'b1)
+                int_rstate <= int_rstate_next; //BSP_RFSM_01
         end
     end
     
