@@ -21,76 +21,76 @@
 
 
 module can_bsp(
-    input wire i_sleep,
-    input wire i_lback,
-    input wire i_reset,
-    input wire [0:127] i_send_data,
-    input wire i_send_en,
-    input wire i_can_clk,
-    input wire i_cen,
-    output reg o_busy_can,
-    output reg o_acker,
-    output reg o_berr,
-    output reg o_ster,
-    output reg o_fmer,
-    output reg o_crcer,
-    output reg o_can_ready,
-    output reg [0:127] o_rx_message,
-    output reg [7:0] o_rec,
-    output reg [7:0] o_tec,
-    output reg o_errwrn,
-    output reg o_bbsy,
-    output reg o_bidle,
-    output reg o_normal,
-    output reg o_sleep,
-    output reg o_tx_bit,
-    input wire i_samp_tick,
-    input wire i_rx_bit,
-    output reg o_lback,
-    output reg o_config,
-    output reg o_wakeup,
-    output reg o_bsoff,
-    output reg o_error,
-    output reg o_txok,
-    output reg o_arblst,
-    output reg [1:0] o_estat
+    input  logic i_sleep = 1'd1,
+    input  logic i_lback = 1'd0,
+    input  logic i_reset = 1'd0,
+    input  logic [0:127] i_send_data = 128'd0,
+    input  logic i_send_en = 1'd0,
+    input  logic i_can_clk = 1'd0,
+    input  logic i_cen = 1'd0,
+    output logic o_busy_can,
+    output logic o_acker,
+    output logic o_berr,
+    output logic o_ster,
+    output logic o_fmer,
+    output logic o_crcer,
+    output logic o_can_ready,
+    output logic [0:127] o_rx_message,
+    output logic [7:0] o_rec,
+    output logic [7:0] o_tec,
+    output logic o_errwrn,
+    output logic o_bbsy,
+    output logic o_bidle,
+    output logic o_normal,
+    output logic o_sleep,
+    output logic o_tx_bit,
+    input  logic i_samp_tick = 1'd0,
+    input  logic i_rx_bit = 1'd0,
+    output logic o_lback,
+    output logic o_config,
+    output logic o_wakeup,
+    output logic o_bsoff,
+    output logic o_error,
+    output logic o_txok,
+    output logic o_arblst,
+    output logic [1:0] o_estat
     );
 //--------------------------------Internal Parameters--------------------------------
-    parameter MCONFIG = 0;            //
-    parameter MLOOPBACK = 1;          //States as parameters
-    parameter MSLEEP = 2;             //
-    parameter MNORMAL = 3;            //
-    parameter IDLE = 0;               //
-    parameter BUSY = 1;               //States as parameters
-    parameter IFS = 2;                //
+    localparam MCONFIG = 0;            //
+    localparam MLOOPBACK = 1;          //States as parameters
+    localparam MSLEEP = 2;             //
+    localparam MNORMAL = 3;            //
+    localparam IDLE = 0;               //
+    localparam BUSY = 1;               //States as parameters
+    localparam IFS = 2;                //
     
      
 //--------------------------------Internal Signals--------------------------------
     //States
-    reg [1:0]   int_mstate;                  // Current Module State(MCONFIG, MLOOPBACK, MSLEEP, or MNORMAL)
-    reg [1:0]   int_mstate_next;             // Next Module State (MCONFIG, MLOOPBACK, MSLEEP, or MNORMAL)
-    reg [1:0]   int_tstate;                  // Current Transmit State(IDLE, BUSY, or IFS)
-    reg [1:0]   int_tstate_next;             // Next Receive State (IDLE, BUSY, or IFS)
-    reg [1:0]   int_rstate;                  // Current Transmit State(IDLE, BUSY, or IFS)
-    reg [1:0]   int_rstate_next;             // Next Receive State (IDLE, BUSY, or IFS)
+    logic [1:0]   int_mstate = 2'd0;                  // Current Module State(MCONFIG, MLOOPBACK, MSLEEP, or MNORMAL)
+    logic [1:0]   int_mstate_next = 2'd0;             // Next Module State (MCONFIG, MLOOPBACK, MSLEEP, or MNORMAL)
+    logic [1:0]   int_tstate = 2'd0;                  // Current Transmit State(IDLE, BUSY, or IFS)
+    logic [1:0]   int_tstate_next = 2'd0;             // Next Receive State (IDLE, BUSY, or IFS)
+    logic [1:0]   int_rstate = 2'd0;                  // Current Transmit State(IDLE, BUSY, or IFS)
+    logic [1:0]   int_rstate_next = 2'd0;             // Next Receive State (IDLE, BUSY, or IFS)
     
     //Data storage
-    reg [7:0]   int_txbit_history;           // History of recentrly transmitted bits
-    reg [7:0]   int_rxbit_history;           // History of recentrly received bits
-    reg [0:127] int_txframe_reg;             // Storage for assembled frame to be transmitted
-    reg [0:127] int_rxframe_reg;             // Storage for assembly of currently received frame
-    reg [14:0] int_crc_checksum;             // Storage for Tx message CRC checksum
-    reg [14:0] int_rx_crc_checksum;          // Storage for Rx message CRC checksum to be compared to the sent one
-    reg         int_tx_send_bit;             // Storage for bit to be transferred
-    reg         int_can_ready;               // Buffer for the can_ready signal
-    reg         int_error;                   // Error generation pair
-    reg         int_arblst;                  // Arbitration Lost signal generation pair
+    logic [7:0]   int_txbit_history;           // History of recentrly transmitted bits
+    logic [7:0]   int_rxbit_history;           // History of recentrly received bits
+    logic [0:127] int_txframe_reg;                    // Storage for assembled frame to be transmitted
+    logic [0:127] int_rxframe_reg;                    // Storage for assembly of currently received frame
+    logic [14:0] int_crc_checksum;                    // Storage for Tx message CRC checksum
+    logic [14:0] int_rx_crc_checksum;                 // Storage for Rx message CRC checksum to be compared to the sent one
+    logic         int_tx_send_bit = 1'd0;             // Storage for bit to be transferred
+    logic         int_can_ready = 1'd0;               // Buffer for the can_ready signal
+    logic         int_error = 1'd0;                   // Error generation pair
+    logic         int_arblst = 1'd0;                  // Arbitration Lost signal generation pair
     
     //Counters
-    integer     int_txbit_counter;           // Counter for number of bits transmitted in current frame
-    integer     int_rxbit_counter;           // Counter for number of bits received in current frame
-    integer     int_tx_frame_end;            // End pointer for the transmit frame
-    integer     int_rx_frame_end;            // End pointer for the receive frame
+    integer     int_txbit_counter = 0;           // Counter for number of bits transmitted in current frame
+    integer     int_rxbit_counter = 0;           // Counter for number of bits received in current frame
+    integer     int_tx_frame_end = 0;            // End pointer for the transmit frame
+    integer     int_rx_frame_end = 0;            // End pointer for the receive frame
     
     //CRC Generation Function Invocation
     assign int_crc_checksum = nextCRC15_D64(i_send_data_r[63:0],
@@ -98,13 +98,19 @@ module can_bsp(
     assign int_rx_crc_checksum = nextCRC15_D64(int_rxframe_reg_r[63:0],
                                                15'h4599);    
     //Shortcuts, reverse vector declarations
-    wire [127:0] i_send_data_r;
+    logic [127:0] i_send_data_r;
     assign i_send_data_r = {<<{i_send_data}};
-    wire [127:0] int_rxframe_reg_r;
+    logic [127:0] int_rxframe_reg_r;
     assign int_rxframe_reg_r = {<<{int_rxframe_reg_r}};
-
+    logic [0:127] int_rx_message = 128'd0;
+    
+    //Mapping
+    assign o_can_ready = int_can_ready;      //BSP_RXSIG_01 + BSP_RXSIG_02
+    assign o_tx_bit = int_tx_send_bit;       //BSP_FRTX_06 + BSP_FRTX_07 + BSP_FRTX_08 + BSP_FRTX_09 + BSP_SOVR_06
+    assign o_estat = {o_bsoff,int_error};                  //BSP_RST_10
+    assign o_rx_message = int_rx_message;
 //--------------------------------Next Module State Logic--------------------------------
-    always @ (i_reset, int_mstate)
+    always_comb
     begin : NEXT_MSTATE
         if (i_reset == 1'b1) begin
             int_mstate_next = MSLEEP; //BSP_RST_24
@@ -131,7 +137,7 @@ module can_bsp(
     end
     
 //--------------------------------Next Transmit State Logic--------------------------------
-    always @ (i_reset, int_tstate, i_samp_tick)
+    always_comb
     begin : NEXT_TSTATE
         if (i_reset == 1'b1) begin
             int_tstate_next = IDLE; 
@@ -170,7 +176,7 @@ module can_bsp(
             end
         end
     end
-    always_ff @ (posedge i_can_clk)
+    always_ff @ (posedge i_can_clk, i_reset)
     begin : TXBIT_HISTORY_GEN
         if (i_reset == 1'b1) begin
             int_txbit_history = 8'hAA; 
@@ -183,7 +189,7 @@ module can_bsp(
     end
     
 //--------------------------------Next Receive State Logic--------------------------------
-    always @ (i_reset, int_rstate, i_samp_tick)
+    always_comb
     begin : NEXT_RSTATE
         if (i_reset == 1'b1) begin
             int_rstate_next = IDLE; 
@@ -232,7 +238,7 @@ module can_bsp(
     end 
        
 //--------------------------------State Advancement Logic--------------------------------
-    always_ff @ (posedge i_can_clk)
+    always_ff @ (posedge i_can_clk, i_reset)
     begin : CUR_MSTATE
         if (i_reset == 1'b1) begin
             int_mstate = MSLEEP; //BSP_RST_23
@@ -263,7 +269,7 @@ module can_bsp(
     end
     
 //--------------------------------Transmission Frame Assembly--------------------------------
-    always @(posedge i_can_clk)
+    always @(posedge i_can_clk, i_reset)
     begin: TX_COUNTER
         if (i_reset == 1'b1) begin
             int_txbit_counter = 0;
@@ -281,7 +287,7 @@ module can_bsp(
         end
     end
     
-    always @(i_reset, int_tstate, i_samp_tick, i_send_data)
+    always_comb
     begin: TX_ASSEMBLY
         if (i_reset == 1'b1) begin
             int_txframe_reg = 128'd0;
@@ -720,44 +726,39 @@ module can_bsp(
     end
    
 //--------------------------------Transmission Frame Assembly--------------------------------
-    always_ff @ (posedge i_can_clk)
+    always_ff @ (posedge i_can_clk, i_reset)
     begin : TX_SEND
         if (i_reset == 1'b1) begin
-            int_tx_send_bit = 1'b1;
-            o_tx_bit = 1'b1;        //BSP_RST_02
+            int_tx_send_bit = 1'b1; //BSP_RST_02
         end
         else begin
             if(i_samp_tick == 1'b1) begin
-                if(int_tstate == BUSY) begin
+                if(int_tstate_next == BUSY) begin
                     if(int_txbit_counter < int_tx_frame_end) begin
                         if(int_txbit_history[5:0] == 6'b111111) begin
                             int_tx_send_bit = 1'b0; //BSP_FRTX_02
-                            o_tx_bit = 1'b0;        //BSP_FRTX_06
                         end
                         else if(int_txbit_history[5:0] == 6'b000000) begin
                             int_tx_send_bit = 1'b1; //BSP_FRTX_03
-                            o_tx_bit = 1'b1;        //BSP_FRTX_07
+                            
                         end
                         else begin 
                             int_tx_send_bit = int_txframe_reg[int_txbit_counter]; //BSP_FRTX_04
-                            o_tx_bit = int_txframe_reg[int_txbit_counter];        //BSP_FRTX_08
                         end
                     end
                     else begin
                         int_tx_send_bit = int_txframe_reg[int_txbit_counter]; //BSP_FRTX_05
-                        o_tx_bit = int_txframe_reg[int_txbit_counter];        //BSP_FRTX_09
                     end
                 end
                 else begin
                     //int_tstate is either IDLE or IFS
                     int_tx_send_bit = 1'b1; //BSP_SOVR_05
-                    o_tx_bit = 1'b1;        //BSP_SOVR_06
                 end
             end
         end
     end
 //--------------------------------Receiver Frame Assembly--------------------------------
-    always @(posedge i_can_clk)
+    always @(posedge i_can_clk, i_reset)
     begin: RX_COUNTER
         if (i_reset == 1'b1) begin
             int_rxbit_counter = 0;
@@ -775,131 +776,132 @@ module can_bsp(
         end
     end
     
-    always @(i_reset, int_rstate, i_samp_tick, i_rx_bit)
+    always_comb
     begin: RX_ASSEMBLY
         if (i_reset == 1'b1) begin
             int_rxframe_reg = 128'd0;
+            int_rx_message = 128'd0;
         end
         else begin
             //Frame assembly proper
             if(int_tstate == BUSY) begin
-                o_rx_message = 128'd0;                              //Redundant, just cleaning the register
-                o_rx_message[96:106] = int_rxframe_reg[0:10];       //BSP_RXASS_03
-                o_rx_message[107] = int_txframe_reg[11];            //BSP_RXASS_04
-                o_rx_message[108] = int_txframe_reg[12];            //BSP_RXASS_05
+                int_rx_message = 128'd0;                              //Redundant, just cleaning the register
+                int_rx_message[96:106] = int_rxframe_reg[0:10];       //BSP_RXASS_03
+                int_rx_message[107] = int_txframe_reg[11];            //BSP_RXASS_04
+                int_rx_message[108] = int_txframe_reg[12];            //BSP_RXASS_05
                 if(int_rxframe_reg[12] == 1'b0) begin
                     //standard frame
-                    o_rx_message[64:67] = int_rxframe_reg[14:17];    //BSP_RXASS_06
+                    int_rx_message[64:67] = int_rxframe_reg[14:17];    //BSP_RXASS_06
                     case(int_rxframe_reg[14:17])
                         4'd0 : begin
-                            o_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd1 : begin
-                            o_rx_message[((16 - (2))*4):63] = int_rxframe_reg_r[((2)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (2))*4):63] = int_rxframe_reg_r[((2)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd2 : begin
-                            o_rx_message[((16 - (3))*4):63] = int_rxframe_reg_r[((3)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (3))*4):63] = int_rxframe_reg_r[((3)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd3 : begin
-                            o_rx_message[((16 - (4))*4):63] = int_rxframe_reg_r[((4)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (4))*4):63] = int_rxframe_reg_r[((4)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd4 : begin
-                            o_rx_message[((16 - (5))*4):63] = int_rxframe_reg_r[((5)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (5))*4):63] = int_rxframe_reg_r[((5)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd5 : begin
-                            o_rx_message[((16 - (6))*4):63] = int_rxframe_reg_r[((6)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (6))*4):63] = int_rxframe_reg_r[((6)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd6 : begin
-                            o_rx_message[((16 - (7))*4):63] = int_rxframe_reg_r[((7)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (7))*4):63] = int_rxframe_reg_r[((7)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd7 : begin
-                            o_rx_message[((16 - (8))*4):63] = int_rxframe_reg_r[((8)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (8))*4):63] = int_rxframe_reg_r[((8)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd8 : begin
-                            o_rx_message[((16 - (9))*4):63] = int_rxframe_reg_r[((9)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (9))*4):63] = int_rxframe_reg_r[((9)*4 + 17):18];    //BSP_RXASS_07
                         end
                         4'd9 : begin
-                            o_rx_message[((16 - (10))*4):63] = int_rxframe_reg_r[((10)*4 + 17):18];  //BSP_RXASS_07
+                            int_rx_message[((16 - (10))*4):63] = int_rxframe_reg_r[((10)*4 + 17):18];  //BSP_RXASS_07
                         end
                         4'd10 : begin
-                            o_rx_message[((16 - (11))*4):63] = int_rxframe_reg_r[((11)*4 + 17):18];  //BSP_RXASS_07
+                            int_rx_message[((16 - (11))*4):63] = int_rxframe_reg_r[((11)*4 + 17):18];  //BSP_RXASS_07
                         end
                         4'd11 : begin
-                            o_rx_message[((16 - (12))*4):63] = int_rxframe_reg_r[((12)*4 + 17):18];  //BSP_RXASS_07
+                            int_rx_message[((16 - (12))*4):63] = int_rxframe_reg_r[((12)*4 + 17):18];  //BSP_RXASS_07
                         end
                         4'd12 : begin
-                            o_rx_message[((16 - (13))*4):63] = int_rxframe_reg_r[((13)*4 + 17):18];  //BSP_RXASS_07
+                            int_rx_message[((16 - (13))*4):63] = int_rxframe_reg_r[((13)*4 + 17):18];  //BSP_RXASS_07
                         end
                         4'd13 : begin
-                            o_rx_message[((16 - (14))*4):63] = int_rxframe_reg_r[((14)*4 + 17):18];  //BSP_RXASS_07
+                            int_rx_message[((16 - (14))*4):63] = int_rxframe_reg_r[((14)*4 + 17):18];  //BSP_RXASS_07
                         end
                         4'd14 : begin
-                            o_rx_message[((16 - (15))*4):63] = int_rxframe_reg_r[((15)*4 + 17):18];  //BSP_RXASS_07
+                            int_rx_message[((16 - (15))*4):63] = int_rxframe_reg_r[((15)*4 + 17):18];  //BSP_RXASS_07
                         end
                         4'd15 : begin
-                            o_rx_message[((16 - (16))*4):63] = int_rxframe_reg_r[((16)*4 + 17):18];  //BSP_RXASS_07
+                            int_rx_message[((16 - (16))*4):63] = int_rxframe_reg_r[((16)*4 + 17):18];  //BSP_RXASS_07
                         end
                         default : begin
-                            o_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 17):18];    //BSP_RXASS_07
+                            int_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 17):18];    //BSP_RXASS_07
                         end
                     endcase
                 end
                 else begin
                     //extended frame
-                    o_rx_message[109:126] = int_rxframe_reg[13:30];         //BSP_RXASS_08
-                    o_rx_message[127] = int_rxframe_reg[31];                //BSP_RXASS_09
-                    o_rx_message[64:67] = int_rxframe_reg[32:35];           //BSP_RXASS_10
+                    int_rx_message[109:126] = int_rxframe_reg[13:30];         //BSP_RXASS_08
+                    int_rx_message[127] = int_rxframe_reg[31];                //BSP_RXASS_09
+                    int_rx_message[64:67] = int_rxframe_reg[32:35];           //BSP_RXASS_10
                     case(int_rxframe_reg[32:35])
                         4'd0 : begin
-                            o_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd1 : begin
-                            o_rx_message[((16 - (2))*4):63] = int_rxframe_reg_r[((2)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (2))*4):63] = int_rxframe_reg_r[((2)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd2 : begin
-                            o_rx_message[((16 - (3))*4):63] = int_rxframe_reg_r[((3)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (3))*4):63] = int_rxframe_reg_r[((3)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd3 : begin
-                            o_rx_message[((16 - (4))*4):63] = int_rxframe_reg_r[((4)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (4))*4):63] = int_rxframe_reg_r[((4)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd4 : begin
-                            o_rx_message[((16 - (5))*4):63] = int_rxframe_reg_r[((5)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (5))*4):63] = int_rxframe_reg_r[((5)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd5 : begin
-                            o_rx_message[((16 - (6))*4):63] = int_rxframe_reg_r[((6)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (6))*4):63] = int_rxframe_reg_r[((6)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd6 : begin
-                            o_rx_message[((16 - (7))*4):63] = int_rxframe_reg_r[((7)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (7))*4):63] = int_rxframe_reg_r[((7)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd7 : begin
-                            o_rx_message[((16 - (8))*4):63] = int_rxframe_reg_r[((8)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (8))*4):63] = int_rxframe_reg_r[((8)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd8 : begin
-                            o_rx_message[((16 - (9))*4):63] = int_rxframe_reg_r[((9)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (9))*4):63] = int_rxframe_reg_r[((9)*4 + 35):36];    //BSP_RXASS_11
                         end
                         4'd9 : begin
-                            o_rx_message[((16 - (10))*4):63] = int_rxframe_reg_r[((10)*4 + 35):36];  //BSP_RXASS_11
+                            int_rx_message[((16 - (10))*4):63] = int_rxframe_reg_r[((10)*4 + 35):36];  //BSP_RXASS_11
                         end
                         4'd10 : begin
-                            o_rx_message[((16 - (11))*4):63] = int_rxframe_reg_r[((11)*4 + 35):36];  //BSP_RXASS_11
+                            int_rx_message[((16 - (11))*4):63] = int_rxframe_reg_r[((11)*4 + 35):36];  //BSP_RXASS_11
                         end
                         4'd11 : begin
-                            o_rx_message[((16 - (12))*4):63] = int_rxframe_reg_r[((12)*4 + 35):36];  //BSP_RXASS_11
+                            int_rx_message[((16 - (12))*4):63] = int_rxframe_reg_r[((12)*4 + 35):36];  //BSP_RXASS_11
                         end
                         4'd12 : begin
-                            o_rx_message[((16 - (13))*4):63] = int_rxframe_reg_r[((13)*4 + 35):36];  //BSP_RXASS_11
+                            int_rx_message[((16 - (13))*4):63] = int_rxframe_reg_r[((13)*4 + 35):36];  //BSP_RXASS_11
                         end
                         4'd13 : begin
-                            o_rx_message[((16 - (14))*4):63] = int_rxframe_reg_r[((14)*4 + 35):36];  //BSP_RXASS_11
+                            int_rx_message[((16 - (14))*4):63] = int_rxframe_reg_r[((14)*4 + 35):36];  //BSP_RXASS_11
                         end
                         4'd14 : begin
-                            o_rx_message[((16 - (15))*4):63] = int_rxframe_reg_r[((15)*4 + 35):36];  //BSP_RXASS_11
+                            int_rx_message[((16 - (15))*4):63] = int_rxframe_reg_r[((15)*4 + 35):36];  //BSP_RXASS_11
                         end
                         4'd15 : begin
-                            o_rx_message[((16 - (16))*4):63] = int_rxframe_reg_r[((16)*4 + 35):36];  //BSP_RXASS_11
+                            int_rx_message[((16 - (16))*4):63] = int_rxframe_reg_r[((16)*4 + 35):36];  //BSP_RXASS_11
                         end
                         default : begin
-                            o_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 35):36];    //BSP_RXASS_11
+                            int_rx_message[((16 - (1))*4):63] = int_rxframe_reg_r[((1)*4 + 35):36];    //BSP_RXASS_11
                         end
                     endcase
                 end
@@ -908,14 +910,14 @@ module can_bsp(
     end
     
 //--------------------------------Receiver Frame Assembly--------------------------------
-    always_ff @ (posedge i_can_clk)
+    always_ff @ (posedge i_can_clk, i_reset)
     begin : RX_SEND
         if (i_reset == 1'b1) begin
             int_rxframe_reg = 128'd0;
         end
         else begin
             if(i_samp_tick == 1'b1) begin
-                if(int_rstate == BUSY) begin
+                if(int_rstate_next == BUSY) begin
                     if(int_rxbit_counter < int_rx_frame_end) begin
                         if(int_rxbit_history[5:0] != 6'b111111 && int_rxbit_history[5:0] != 6'b000000) begin 
                             int_rxframe_reg[int_rxbit_counter] = i_rx_bit;  //BSP_FRRX_02
@@ -926,14 +928,12 @@ module can_bsp(
         end
     end
 //--------------------------------Receiver Frame Signaling--------------------------------
-    always_ff @ (posedge i_can_clk)
+    always_ff @ (posedge i_can_clk, i_reset)
     begin : RX_SIGNAL
         if (i_reset == 1'b1) begin
-            o_can_ready = 1'b0;         //BSP_RST_22
-            int_can_ready = 1'b0;
+            int_can_ready = 1'b0;       //BSP_RST_22
         end
-        else begin
-            o_can_ready = int_can_ready;    //BSP_RXSIG_01 + BSP_RXSIG_02
+        else begin 
             if(int_rstate == IFS) begin
                 int_can_ready = 1'b1;       //BSP_RXSIG_01
             end
@@ -946,7 +946,7 @@ module can_bsp(
 //--------------------------------Error generation and signaling--------------------------------
     assign o_error = int_error;     //BSP_ERROR_15
     assign o_arblst = int_arblst;   //BSP_ERROR_17
-    always @(i_reset, int_mstate, int_tstate, int_rstate, i_samp_tick, i_rx_bit, int_rxbit_counter, int_txbit_counter)
+    always_comb
     begin: ERROR_GEN
         if (i_reset == 1'b1) begin
             o_busy_can = 1'b0;       //BSP_RST_01
@@ -957,15 +957,14 @@ module can_bsp(
             o_ster = 1'b0;           //BSP_RST_07
             o_fmer = 1'b0;           //BSP_RST_08
             o_crcer = 1'b0;          //BSP_RST_09
-            o_estat = 2'b10;         //BSP_RST_10
             o_bbsy = 1'b0;           //BSP_RST_11
             o_bidle = 1'b0;          //BSP_RST_12
             o_normal = 1'b0;         //BSP_RST_13
             o_config = 1'b0;         //BSP_RST_14
             o_txok = 1'b0;           //BSP_RST_15
             int_arblst = 1'b0;       //BSP_RST_16 through assign clause int BSP_ERROR_17
-            o_bsoff = 1'b0;          //BSP_RST_18
-            o_sleep = 1'b0;          //BSP_RST_19
+            o_bsoff = 1'b1;          //BSP_RST_18
+            o_sleep = 1'b1;          //BSP_RST_19
             o_lback = 1'b0;          //BSP_RST_20
             o_wakeup = 1'b0;         //BSP_RST_21
             int_error = 1'b0;        //BSP_RST_17 through assign clause int BSP_ERROR_15
@@ -981,6 +980,7 @@ module can_bsp(
             o_bbsy = 1'b0; 
             o_bidle = 1'b0; 
             int_error = 1'b0;
+            
             if(int_tstate == BUSY) begin
                 if(int_mstate != MCONFIG) begin
                     if(int_mstate != MSLEEP) begin
