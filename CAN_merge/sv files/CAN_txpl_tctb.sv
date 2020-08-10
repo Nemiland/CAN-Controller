@@ -61,7 +61,7 @@ module CAN_txpl_tctb();
         //TXPL_TC_1
         $display("[TXPL_TC_1] 'o_send_data', 'o_send_en', 'o_hpb_r_en' and 'o_fifo_r_en' outputs shall be set to zeros when 'i_reset' is set to 1.");
         i_reset = #1 1'b1;
-        #1 if (o_send_data == 128'b0 || o_send_en == 1'b0 || o_hpb_r_en == 1'b0 || o_fifo_r_en == 1'b0) begin
+        #1 if (o_send_data == 128'b0 && o_send_en == 1'b0 && o_hpb_r_en == 1'b0 && o_fifo_r_en == 1'b0) begin
             $display("\tPASS: All outputs set to zeros.");
            end else begin
             if(o_send_data != 128'b0) begin
@@ -120,7 +120,7 @@ module CAN_txpl_tctb();
         i_reset     = #1 1'b0;
         i_busy_can  = #1 1'b0;
         i_cen       = #1 1'b1;
-        i_hpb_data  = #1 8'h0A0A0A0A;
+        i_hpb_data  = #1 32'h0A0A0A0A;
         $display("[TXPL_TC_10] The state shall transition from idle to prepare when 'i_busy_can' is set to 0 and 'i_cen' is set to 1.");
         #2 if(DUT0.state == PREPARE) begin
             $display("\tPASS: state is PREPARE.");
@@ -164,7 +164,7 @@ module CAN_txpl_tctb();
         i_cen      = #1 1'b1;
         i_tx_empty = #1 1'b0;
         i_hpbfull  = #1 1'b0;
-        i_fifo_data  = #1 8'h0A0A0A0A;        
+        i_fifo_data  = #1 32'h0A0A0A0A;        
         $display("[TXPL_TC_15] The state shall transition from prepare to send_fifo when 'i_busy_can' is set to 0, 'i_cen' is set to 1, 'i_hpbfull' is set to 0 and 'i_tx_empty' is set to 0.");
         #2 if(DUT0.state == SEND_FIFO) begin
             $display("\tPASS: state is SEND_FIFO.");
