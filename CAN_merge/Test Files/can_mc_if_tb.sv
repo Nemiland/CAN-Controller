@@ -146,7 +146,7 @@ module can_mc_if_tb;
     // o_reg_data outputs i_reg_r_data when i_cs and i_r_neg_w are 1 and i_addr is a valid input
     $display("-------------------- MCI_RD_TC_01 -------------------\n");
       failed_sub_test_cases = 0;
-      i_reg_r_data = 32'hAAAA_AAAA;
+      i_bus_data = 32'hAAAA_AAAA;
       
       // i_cs = 0, i_r_neg_w = 0, i_reg_ack = 0, & i_addr = 6'h30
       $display("    Test when i_cs=0, i_r_neg_w=0, i_reg_ack=0, & i_addr=6'h30");
@@ -155,7 +155,7 @@ module can_mc_if_tb;
       i_r_neg_w = 1'b0;
       i_reg_ack = 1'b0;
       i_addr = 6'h30;
-      i_reg_r_data = 32'hAAAA_AAAA;
+      i_bus_data = 32'hAAAA_AAAA;
       tick;
       i_reset = 1'b0;
       tick;
