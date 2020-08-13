@@ -340,7 +340,7 @@ can_config_registers (
    .i_rxnemp            (int_rx_fifo_empty),
    .i_rxoflw            (int_rx_fifo_overflow),
    .i_rxuflw            (int_rx_fifo_underflow),
-   .i_rxok              (o_rxok),								//********NO DESIGNATED INPUT FROM FIFO
+   .i_rxok              (af_rx_fifo_w_en),
    .i_rec               (bsp2reg_rec),
    .i_tec               (bsp2reg_tec),
    
